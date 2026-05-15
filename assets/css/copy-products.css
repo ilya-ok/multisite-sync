@@ -1,0 +1,80 @@
+/**
+ * Стили страницы копирования товаров
+ * Multisite Sync Plugin
+ */
+
+/* Таблица копирования — горизонтальный скролл при большом числе сайтов */
+.ms-copy-table {
+	table-layout: auto;
+}
+
+/* Ячейка статуса по сайту */
+.ms-col-site {
+	width: 60px;
+	text-align: center;
+	font-size: 15px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+/* Статус: товар есть */
+.ms-site-status-ok {
+	color: #46b450;
+}
+
+/* Статус: товара нет */
+.ms-site-status-missing {
+	color: #aaa;
+}
+
+/* Статус: ошибка копирования */
+.ms-site-status-error {
+	color: #dc3232;
+	cursor: help;
+}
+
+/* Статус: нет SKU */
+.ms-site-status-nosku {
+	color: #ffb900;
+	cursor: help;
+}
+
+/* Кнопка копировать */
+.ms-copy-btn {
+	white-space: nowrap;
+}
+
+/* Подпись «Нет SKU» вместо кнопки */
+.ms-no-sku {
+	color: #aaa;
+	font-style: italic;
+	font-size: 12px;
+}
+
+/* Статус результата копирования */
+.ms-copy-status {
+	display: inline-block;
+	margin-left: 6px;
+	vertical-align: middle;
+	font-size: 12px;
+}
+
+/* Бейдж «SPB» — страница содержит блоки Page Builder */
+.ms-badge {
+	display: inline-block;
+	padding: 1px 5px;
+	font-size: 10px;
+	font-weight: 700;
+	background: #2271b1;
+	color: #fff;
+	border-radius: 3px;
+	vertical-align: middle;
+	letter-spacing: .04em;
+}
+
+/* Статус страницы (publish/draft) */
+.ms-status-draft {
+	color: #aaa;
+	font-size: 11px;
+	font-style: italic;
+}
