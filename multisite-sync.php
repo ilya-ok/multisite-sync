@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Multisite Sync
  * Plugin URI:
- * Description: Синхронизация цен WooCommerce товаров между сайтами мультисайта по SKU. Массовое редактирование с автосинхронизацией.
+ * Description: Копирование товаров и страниц с главного сайта на дочерние сайты мультисайта.
  * Version: 1.2.0
  * Author: Your Name
  * Author URI:
@@ -78,16 +78,10 @@ function ms_init() {
 	}
 
 	// Загрузка классов
-	require_once MS_PLUGIN_DIR . 'includes/class-mps-sync.php';
-	require_once MS_PLUGIN_DIR . 'includes/class-mps-admin.php';
-	require_once MS_PLUGIN_DIR . 'includes/class-mps-bulk-edit.php';
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy.php';
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-pages.php';
 
 	// Инициализация классов
-	MS_Sync::get_instance();
-	MS_Admin::get_instance();
-	MS_Bulk_Edit::get_instance();
 	MS_Copy::get_instance();
 	MPS_Copy_Pages::get_instance();
 }
@@ -108,10 +102,7 @@ function ms_activate() {
 		wp_die( esc_html__( 'Этот плагин требует активный WooCommerce.', 'multisite-sync' ) );
 	}
 
-	// Создание настроек по умолчанию
-	add_site_option( 'ms_auto_sync', '1' );
-	add_site_option( 'ms_sync_regular_price', '1' );
-	add_site_option( 'ms_sync_sale_price', '1' );
+	// Создание настроек по умолчанию (нет)
 }
 register_activation_hook( __FILE__, 'ms_activate' );
 
