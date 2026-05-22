@@ -34,12 +34,23 @@ class MS_Copy {
 	}
 
 	public function add_submenu_page() {
-		$this->page_hook = add_submenu_page(
+		$this->page_hook = add_menu_page(
+			__( 'Синхронизация Multisite', 'multisite-sync' ),
+			__( 'Синхронизация Multisite', 'multisite-sync' ),
+			'manage_network',
+			'ms-bulk-edit',
+			array( $this, 'render_page' ),
+			'dashicons-update',
+			30
+		);
+
+		// Переименовать авто-созданный первый подпункт меню
+		add_submenu_page(
 			'ms-bulk-edit',
 			__( 'Копирование товаров', 'multisite-sync' ),
 			__( 'Копирование товаров', 'multisite-sync' ),
 			'manage_network',
-			'ms-copy-products',
+			'ms-bulk-edit',
 			array( $this, 'render_page' )
 		);
 	}
