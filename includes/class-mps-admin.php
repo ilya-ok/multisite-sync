@@ -79,7 +79,42 @@ class MS_Admin {
 	 * Отрисовка страницы настроек
 	 */
 	public function render_settings_page() {
+		$main_id      = get_main_site_id();
+		$main_products = get_admin_url( $main_id, 'edit.php?post_type=product' );
+		$main_wc       = get_admin_url( $main_id, 'admin.php?page=wc-settings&tab=general' );
+		$main_tools    = get_admin_url( $main_id, 'tools.php' );
 		?>
+		<style>
+		.ms-info-wrap { position: relative; display: inline-block; }
+		.ms-info-btn {
+			display: inline-flex; align-items: center; justify-content: center;
+			width: 18px; height: 18px; border-radius: 50%;
+			background: #2271b1; color: #fff; font-size: 11px; font-weight: 700;
+			border: none; cursor: pointer; line-height: 1;
+			margin-left: 6px; vertical-align: middle; padding: 0;
+			text-decoration: none;
+		}
+		.ms-info-btn:hover { background: #135e96; color: #fff; }
+		.ms-info-popup {
+			display: none; position: absolute; z-index: 9999;
+			top: calc(100% + 6px); left: 0;
+			width: 320px; background: #fff;
+			border: 1px solid #c3c4c7; border-radius: 4px;
+			box-shadow: 0 4px 16px rgba(0,0,0,.15);
+			padding: 14px 16px 12px;
+		}
+		.ms-info-popup.is-visible { display: block; }
+		.ms-info-popup__close {
+			position: absolute; top: 8px; right: 10px;
+			background: none; border: none; cursor: pointer;
+			font-size: 16px; line-height: 1; color: #787c82; padding: 0;
+		}
+		.ms-info-popup__close:hover { color: #1d2327; }
+		.ms-info-popup__title { font-weight: 600; margin: 0 0 6px; font-size: 13px; }
+		.ms-info-popup__text  { margin: 0 0 10px; font-size: 13px; color: #50575e; line-height: 1.5; }
+		.ms-info-popup__link  { font-size: 12px; }
+		</style>
+
 		<div class="wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
@@ -91,6 +126,15 @@ class MS_Admin {
 					<tr>
 						<th scope="row">
 							<?php esc_html_e( 'Автоматическая синхронизация', 'multisite-sync' ); ?>
+							<span class="ms-info-wrap">
+								<button type="button" class="ms-info-btn" aria-label="Подробнее">?</button>
+								<div class="ms-info-popup">
+									<button type="button" class="ms-info-popup__close" aria-label="Закрыть">×</button>
+									<p class="ms-info-popup__title">Автоматическая синхронизация</p>
+									<p class="ms-info-popup__text">Когда вы сохраняете товар на любом сайте сети, цены автоматически обновляются на всех остальных сайтах по SKU. Если выключить — синхронизация происходит только вручную через страницу «Цены Multisite».</p>
+									<a class="ms-info-popup__link" href="<?php echo esc_url( $main_products ); ?>" target="_blank">Товары на главном сайте →</a>
+								</div>
+							</span>
 						</th>
 						<td>
 							<label>
@@ -106,6 +150,15 @@ class MS_Admin {
 					<tr>
 						<th scope="row">
 							<?php esc_html_e( 'Синхронизировать обычную цену', 'multisite-sync' ); ?>
+							<span class="ms-info-wrap">
+								<button type="button" class="ms-info-btn" aria-label="Подробнее">?</button>
+								<div class="ms-info-popup">
+									<button type="button" class="ms-info-popup__close" aria-label="Закрыть">×</button>
+									<p class="ms-info-popup__title">Обычная цена (Regular Price)</p>
+									<p class="ms-info-popup__text">Основная цена товара без скидки. Отображается покупателю как стандартная цена. При включении этой опции изменение обычной цены на главном сайте распространяется на все города.</p>
+									<a class="ms-info-popup__link" href="<?php echo esc_url( $main_wc ); ?>" target="_blank">Настройки WooCommerce на главном сайте →</a>
+								</div>
+							</span>
 						</th>
 						<td>
 							<label>
@@ -118,6 +171,15 @@ class MS_Admin {
 					<tr>
 						<th scope="row">
 							<?php esc_html_e( 'Синхронизировать цену со скидкой', 'multisite-sync' ); ?>
+							<span class="ms-info-wrap">
+								<button type="button" class="ms-info-btn" aria-label="Подробнее">?</button>
+								<div class="ms-info-popup">
+									<button type="button" class="ms-info-popup__close" aria-label="Закрыть">×</button>
+									<p class="ms-info-popup__title">Цена со скидкой (Sale Price)</p>
+									<p class="ms-info-popup__text">Цена во время акции или распродажи. Когда она заполнена, WooCommerce отображает её вместо обычной цены, а обычную перечёркивает. При включении синхронизируется между всеми городами.</p>
+									<a class="ms-info-popup__link" href="<?php echo esc_url( $main_wc ); ?>" target="_blank">Настройки WooCommerce на главном сайте →</a>
+								</div>
+							</span>
 						</th>
 						<td>
 							<label>
@@ -130,6 +192,15 @@ class MS_Admin {
 					<tr>
 						<th scope="row">
 							<?php esc_html_e( 'Отладочная информация', 'multisite-sync' ); ?>
+							<span class="ms-info-wrap">
+								<button type="button" class="ms-info-btn" aria-label="Подробнее">?</button>
+								<div class="ms-info-popup">
+									<button type="button" class="ms-info-popup__close" aria-label="Закрыть">×</button>
+									<p class="ms-info-popup__title">Режим отладки</p>
+									<p class="ms-info-popup__text">Включает подробное логирование синхронизации в файл <code>wp-content/debug.log</code>. Используйте только при поиске ошибок — в рабочем режиме лучше держать выключенным, чтобы не раздувать лог.</p>
+									<a class="ms-info-popup__link" href="<?php echo esc_url( $main_tools ); ?>" target="_blank">Инструменты на главном сайте →</a>
+								</div>
+							</span>
 						</th>
 						<td>
 							<label>
@@ -142,6 +213,34 @@ class MS_Admin {
 
 				<?php submit_button( __( 'Сохранить настройки', 'multisite-sync' ) ); ?>
 			</form>
+
+		<script>
+		(function() {
+			document.querySelectorAll('.ms-info-btn').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					var popup = btn.nextElementSibling;
+					var isOpen = popup.classList.contains('is-visible');
+					// закрыть все остальные
+					document.querySelectorAll('.ms-info-popup.is-visible').forEach(function(p) {
+						p.classList.remove('is-visible');
+					});
+					if (!isOpen) { popup.classList.add('is-visible'); }
+				});
+			});
+			document.querySelectorAll('.ms-info-popup__close').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					btn.closest('.ms-info-popup').classList.remove('is-visible');
+				});
+			});
+			document.addEventListener('click', function() {
+				document.querySelectorAll('.ms-info-popup.is-visible').forEach(function(p) {
+					p.classList.remove('is-visible');
+				});
+			});
+		})();
+		</script>
 
 			<hr>
 

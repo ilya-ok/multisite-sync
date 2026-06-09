@@ -60,6 +60,8 @@ _min_order, _step_quantity, _volume_unit
 
 Сохранение через POST-форму с nonce `ms_save_settings`.
 
+**UI попапы:** у каждой настройки есть кнопка `?` — по клику открывается карточка с описанием настройки и ссылкой на соответствующий раздел главного сайта (`get_admin_url(get_main_site_id(), ...)`). Реализовано inline CSS/JS в `render_settings_page()`.
+
 ---
 
 ## MPS_Copy_Pages (class-mps-copy-pages.php)
@@ -87,6 +89,35 @@ _min_order, _step_quantity, _volume_unit
 Действия (кнопка) | Название + бейдж SPB + статус | Slug | [Сайт1] [Сайт2] ...
 
 **JS (copy-pages.js):** кнопка «Загрузить страницы» → AJAX → таблица. Кнопка «Копировать» → последовательный обход сайтов, ячейки обновляются в реальном времени (✓/✗).
+
+---
+
+## MPS_Copy_Posts (class-mps-copy-posts.php)
+
+Копирование записей (post type `post`) с главного сайта на дочерние.
+
+**Расположение:** Network Admin → Синхронизация Multisite → Копирование записей (slug: `mps-copy-posts`)
+
+**AJAX actions:**
+- `mps_get_posts` — загружает записи главного сайта (publish + draft, до 500) + статус на каждом дочернем сайте
+- `mps_copy_post` — копирует одну запись на **один** указанный сайт (параметр `site_id`)
+
+**Nonce:** `mps_copy_posts_nonce`
+**JS объект:** `mpsCopyPostsData = { ajaxurl, nonce, sites: [{id, name}] }`
+
+**Что копируется:**
+- `post_title`, `post_name` (slug), `post_content`, `post_excerpt`, `post_status`
+- Категории: поиск по slug на дочернем сайте, создание через `wp_insert_term` если не найдена
+- Мета-поля: `_post_city`, `_post_area`, `_post_product`, `_post_link`
+
+**Идентификатор записи:** `post_name` (slug). Если запись с таким slug уже есть → `wp_update_post`, нет → `wp_insert_post`.
+
+**Поиск существующей записи:** прямой SQL по `post_name` и `post_type = 'post'`.
+
+**Таблица — колонки:**
+Действия (кнопка) | Название + категории + статус | Slug | [Сайт1] [Сайт2] ...
+
+**JS (copy-posts.js):** кнопка «Загрузить записи» → AJAX → таблица. Кнопка «Копировать» → последовательный обход сайтов, ячейки обновляются в реальном времени (✓/✗).
 
 ---
 

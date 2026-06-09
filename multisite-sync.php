@@ -80,10 +80,12 @@ function ms_init() {
 	// Загрузка классов
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy.php';
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-pages.php';
+	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-posts.php';
 
 	// Инициализация классов
 	MS_Copy::get_instance();
 	MPS_Copy_Pages::get_instance();
+	MPS_Copy_Posts::get_instance();
 }
 add_action( 'plugins_loaded', 'ms_init' );
 
