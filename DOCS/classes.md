@@ -79,7 +79,7 @@ _min_order, _step_quantity, _volume_unit
 
 **Что копируется:**
 - `post_title`, `post_name` (slug), `post_content`, `post_status`
-- Мета `_spb_blocks` — JSON переносится без изменений (изображения хранятся по slug, разрешаются на каждом сайте независимо)
+- Мета `_spb_blocks` — блоки декодируются через `spb_get_blocks()` в PHP-массив, затем сохраняются через `spb_save_blocks()` (с `wp_slash` + `json_encode`). Прямая передача «сырой» строки не используется — MySQL убирает `\"` при вставке, что ломает JSON для блоков с HTML-атрибутами (цвет, выравнивание).
 
 **Идентификатор страницы:** `post_name` (slug). Если страница с таким slug уже есть → `wp_update_post`, нет → `wp_insert_post`.
 

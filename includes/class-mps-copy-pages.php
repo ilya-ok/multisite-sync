@@ -320,11 +320,11 @@ class MPS_Copy_Pages {
 		}
 
 		$data = array(
-			'title'       => $source->post_title,
-			'slug'        => $source->post_name,
-			'content'     => $source->post_content,
-			'status'      => $source->post_status,
-			'spb_blocks'  => get_post_meta( $page_id, '_spb_blocks', true ),
+			'title'      => $source->post_title,
+			'slug'       => $source->post_name,
+			'content'    => $source->post_content,
+			'status'     => $source->post_status,
+			'spb_blocks' => function_exists( 'spb_get_blocks' ) ? spb_get_blocks( $page_id ) : array(),
 		);
 
 		restore_current_blog();
@@ -369,9 +369,10 @@ class MPS_Copy_Pages {
 				continue;
 			}
 
-			// Копируем блоки — JSON переносится без изменений
-			if ( '' !== $data['spb_blocks'] ) {
-				update_post_meta( $new_id, '_spb_blocks', $data['spb_blocks'] );
+			// Копируем блоки — декодируем и сохраняем через spb_save_blocks
+			// чтобы гарантировать корректный wp_slash + json_encode
+			if ( ! empty( $data['spb_blocks'] ) && function_exists( 'spb_save_blocks' ) ) {
+				spb_save_blocks( $new_id, $data['spb_blocks'] );
 			}
 
 			$results[ $site->blog_id ] = array( 'success' => true );
