@@ -1,5 +1,15 @@
 # История изменений
 
+## [1.5.1] - 2026-07-14
+
+### Добавлено
+- Колонка с превью (60×60px) в таблицах копирования постов и портфолио
+- `MPS_Copy_Posts::build_posts_table()` — превью из WordPress featured image
+- `MPS_Copy_Portfolio::build_table()` — превью сначала из featured image, fallback на `_portfolio_image` (`wp-content/portfolio/`)
+- CSS-классы `.ms-col-thumb`, `.ms-col-thumb img`, `.ms-no-thumb` в `copy-products.css` — единый стиль для всех таблиц с превью
+
+---
+
 ## [1.5.0] - 2026-07-14
 
 ### Добавлено

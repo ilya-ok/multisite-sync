@@ -247,6 +247,7 @@ class MPS_Copy_Posts {
 		$html  = '<table class="widefat ms-products-table ms-copy-table">';
 		$html .= '<thead><tr>';
 		$html .= '<th class="ms-col-actions">' . esc_html__( 'Действия', 'multisite-sync' ) . '</th>';
+		$html .= '<th class="ms-col-thumb"></th>';
 		$html .= '<th class="ms-col-name">'    . esc_html__( 'Запись', 'multisite-sync' ) . '</th>';
 		$html .= '<th class="ms-col-sku">'     . esc_html__( 'Slug', 'multisite-sync' ) . '</th>';
 
@@ -273,6 +274,15 @@ class MPS_Copy_Posts {
 			$html .= esc_html__( 'Копировать', 'multisite-sync' );
 			$html .= '</button>';
 			$html .= '<span class="ms-copy-status"></span>';
+			$html .= '</td>';
+
+			$thumb_url = get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
+			$html .= '<td class="ms-col-thumb">';
+			if ( $thumb_url ) {
+				$html .= '<img src="' . esc_url( $thumb_url ) . '" alt="">';
+			} else {
+				$html .= '<div class="ms-no-thumb">&#128247;</div>';
+			}
 			$html .= '</td>';
 
 			$html .= '<td class="ms-col-name">';

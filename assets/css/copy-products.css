@@ -78,3 +78,33 @@
 	font-size: 11px;
 	font-style: italic;
 }
+
+/* Превью записи / портфолио */
+.ms-col-thumb {
+	width: 70px;
+	text-align: center;
+}
+
+.ms-col-thumb img {
+	width: 60px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: 3px;
+	border: 1px solid #c3c4c7;
+	display: block;
+	margin: 0 auto;
+}
+
+.ms-col-thumb .ms-no-thumb {
+	width: 60px;
+	height: 60px;
+	background: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto;
+	color: #c3c4c7;
+	font-size: 20px;
+}
