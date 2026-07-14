@@ -3,7 +3,7 @@
  * Plugin Name: Multisite Sync
  * Plugin URI:
  * Description: Копирование товаров и страниц с главного сайта на дочерние сайты мультисайта.
- * Version: 1.2.0
+ * Version: 1.4.0
  * Author: Your Name
  * Author URI:
  * License: GPL v2 or later
@@ -22,10 +22,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Константы плагина
-define( 'MS_VERSION', '1.2.0' );
+define( 'MS_VERSION', '1.4.0' );
 define( 'MS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'MS_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+/**
+ * 301-редиректы, созданные на странице удаления товаров.
+ * Хук работает на всех сайтах сети (плагин сетевой).
+ * Редиректы хранятся в wp_options под ключом mps_redirects: [ '/from/' => '/to/' ]
+ */
+add_action( 'template_redirect', 'mps_handle_redirects', 1 );
+function mps_handle_redirects() {
+	$redirects = get_option( 'mps_redirects', array() );
+	if ( empty( $redirects ) ) {
+		return;
+	}
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+	$path        = wp_parse_url( esc_url_raw( $request_uri ), PHP_URL_PATH );
+	$path        = '/' . trim( (string) $path, '/' ) . '/';
+
+	if ( isset( $redirects[ $path ] ) ) {
+		wp_redirect( $redirects[ $path ], 301 );
+		exit;
+	}
+}
 
 /**
  * Проверка наличия мультисайта и WooCommerce
@@ -81,11 +103,19 @@ function ms_init() {
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy.php';
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-pages.php';
 	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-posts.php';
+	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-portfolio.php';
+	require_once MS_PLUGIN_DIR . 'includes/class-mps-copy-galleries.php';
+	require_once MS_PLUGIN_DIR . 'includes/class-mps-delete.php';
+	require_once MS_PLUGIN_DIR . 'includes/class-mps-redirects.php';
 
 	// Инициализация классов
 	MS_Copy::get_instance();
 	MPS_Copy_Pages::get_instance();
 	MPS_Copy_Posts::get_instance();
+	MPS_Copy_Portfolio::get_instance();
+	MPS_Copy_Galleries::get_instance();
+	MPS_Delete::get_instance();
+	MPS_Redirects::get_instance();
 }
 add_action( 'plugins_loaded', 'ms_init' );
 

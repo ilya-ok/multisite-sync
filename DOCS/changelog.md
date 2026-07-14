@@ -1,5 +1,40 @@
 # История изменений
 
+## [1.5.0] - 2026-07-14
+
+### Добавлено
+- Класс `MPS_Copy_Galleries` (`includes/class-mps-copy-galleries.php`) — копирование CPT `ss_gallery` с главного сайта на дочерние
+- AJAX `mps_get_galleries` — загрузка таблицы галерей со статусом по дочерним сайтам
+- AJAX `mps_copy_gallery` — копирование одной галереи на один сайт (title, slug, status, `_gallery_images`, `_gallery_columns`)
+- `assets/js/copy-galleries.js` — последовательный обход сайтов, счётчик «Сайт X из N: название», итог «✓ Готово: N, ошибок: N», таймаут 60 сек
+- Файлы не копируются — `wp-content/galleries/` общая папка на сервере
+
+### Изменено
+- `MPS_Copy_Portfolio` — удалено `_portfolio_gallery` из списка копируемых мета-полей (галереи вынесены в `ss_gallery`)
+
+---
+
+## [1.4.0] - 2026-07-09
+
+### Добавлено
+- Страница «Удаление товаров» (`MPS_Delete`, `class-mps-delete.php`, slug: `ms-delete-products`)
+- Показывает все товары включая корзину (`post_status IN (publish,draft,private,pending,trash)`)
+- 3-состояние ячейки сайта: `active` (✓) / `trashed` (🗑) / `missing` (—)
+- AJAX `ms_get_delete_products` — загрузка таблицы с метаданными по сайтам
+- AJAX `ms_delete_product` — перемещение в корзину (`wp_trash_post`), **один сайт за запрос**
+- AJAX `ms_restore_product` — восстановление из корзины (`wp_untrash_post`), **один сайт за запрос**
+- AJAX `ms_create_redirect` — сохранение 301-редиректа в `mps_redirects` option
+- Хук `mps_handle_redirects` (`template_redirect`, prio 1) в `multisite-sync.php` — применяет редиректы на всех сайтах сети
+- Форма редиректа после удаления: ссылка на удалённый URL, поле TO, select категорий-предложений
+- `delete-products.js` — последовательный обход сайтов (один AJAX на сайт), прогресс «Сайт X из N»
+- `delete-products.css` — стили таблицы удаления и блока редиректа
+- `get_original_path()` — убирает суффикс `__trashed/` из slug при отображении URL
+
+### Исправлено
+- Отсутствующий атрибут `data-sku` на кнопках «Удалить»/«Восстановить» — JS читал `undefined`, PHP отклонял все запросы с «Неверные параметры» (Ошибок: N, где N = число сайтов)
+
+---
+
 ## [1.3.0] - 2026-06-09
 
 ### Добавлено

@@ -1,33 +1,5 @@
 # Классы плагина
 
-## MS_Sync (class-mps-sync.php)
-
-Автоматическая синхронизация цен между сайтами при сохранении товара.
-
-**Хуки:**
-```php
-add_action('woocommerce_update_product', 'sync_product_price');
-add_action('woocommerce_new_product',    'sync_product_price');
-add_action('updated_post_meta',          'sync_on_meta_update'); // для быстрого редактирования
-```
-
-**Ключевые методы:**
-
-`sync_product_price($product_id)` — вызывается при сохранении товара. Проверяет флаг `$is_syncing` и настройку `ms_auto_sync`, получает SKU и цены, вызывает `sync_to_all_sites()`.
-
-`sync_to_all_sites($sku, $regular, $sale, $exclude_id, $meta_data)` — обходит все сайты сети через `switch_to_blog()`, ищет товар по SKU, обновляет цены. Флаг `$is_syncing = true` предотвращает рекурсию.
-
-`update_product_prices($product_id, $regular, $sale, $meta_data)` — обновляет цены и мета-поля товара. Учитывает настройки `ms_sync_regular_price` и `ms_sync_sale_price`.
-
-`bulk_sync_prices($price_updates)` — массовая синхронизация, принимает `[sku => [regular, sale, meta]]`.
-
-**Мета-поля, которые синхронизируются:**
-```
-_custom_price_type, _price_otrez, _price_opt, _units,
-_min_order, _step_quantity, _volume_unit
-```
-
----
 
 ## MS_Bulk_Edit (class-mps-bulk-edit.php)
 
@@ -39,28 +11,8 @@ _min_order, _step_quantity, _volume_unit
 - `ms_get_products` — загрузка товаров категории, возвращает HTML таблицы
 - `ms_save_product` — сохранение полей одного товара + sync на все сайты
 
-**Метод `build_products_table()`** — генерирует таблицу с колонками:
-- Фото, Название, SKU
-- Обычная цена, Цена со скидкой, Тип цены (select: стандартная/опт/отрез)
-- Цена отрез, Цена опт, Ед. изм., Мин. заказ, Шаг кол-во, Объём ед.
-- Кнопка Сохранить + статус
-
 **Nonce:** `ms_bulk_edit_nonce`
 **JS объект:** `msData = { ajaxurl, nonce }`
-
----
-
-## MS_Admin (class-mps-admin.php)
-
-Страница настроек плагина.
-
-**Расположение:** Network Admin → Синхронизация Multisite → Настройки (slug: `ms-settings`)
-
-**Настройки:** `ms_auto_sync`, `ms_sync_regular_price`, `ms_sync_sale_price`, `ms_debug_mode`
-
-Сохранение через POST-форму с nonce `ms_save_settings`.
-
-**UI попапы:** у каждой настройки есть кнопка `?` — по клику открывается карточка с описанием настройки и ссылкой на соответствующий раздел главного сайта (`get_admin_url(get_main_site_id(), ...)`). Реализовано inline CSS/JS в `render_settings_page()`.
 
 ---
 
@@ -118,6 +70,73 @@ _min_order, _step_quantity, _volume_unit
 Действия (кнопка) | Название + категории + статус | Slug | [Сайт1] [Сайт2] ...
 
 **JS (copy-posts.js):** кнопка «Загрузить записи» → AJAX → таблица. Кнопка «Копировать» → последовательный обход сайтов, ячейки обновляются в реальном времени (✓/✗).
+
+---
+
+## MPS_Copy_Portfolio (class-mps-copy-portfolio.php)
+
+Копирование записей типа `portfolio` с главного сайта на дочерние.
+
+**Расположение:** Network Admin → Синхронизация Multisite → Копирование портфолио (slug: `mps-copy-portfolio`)
+
+**AJAX actions:**
+- `mps_get_portfolio` — загружает записи portfolio главного сайта (publish + draft, до 500) + статус на каждом дочернем сайте
+- `mps_copy_portfolio` — копирует одну запись на **один** указанный сайт (параметр `site_id`)
+
+**Nonce:** `mps_copy_portfolio_nonce`  
+**JS объект:** `mpsCopyPortfolioData = { ajaxurl, nonce, sites: [{id, name}] }`  
+**JS файл:** `assets/js/copy-portfolio.js`
+
+**Что копируется:**
+- `post_title`, `post_name` (slug), `post_content`, `post_excerpt`, `post_status`
+- `post_date`, `post_date_gmt` — дата публикации
+- Мета-поля: `_portfolio_image`, `_post_city`, `_post_area`, `_post_product`, `_post_link`, `_post_work_name`, `_post_work_link`
+
+> **Примечание:** `_portfolio_gallery` удалено из списка копируемых мета-полей — галереи вынесены в отдельный CPT `ss_gallery`.
+
+**Изображения — подход без дублирования:**  
+`_portfolio_image` хранит **только имя файла**. Файлы лежат в `wp-content/portfolio/` — общей папке, доступной по URL любого поддомена. Файлы не копируются.
+
+**Идентификатор записи:** `post_name` (slug). Если запись с таким slug уже есть → `wp_update_post`, нет → `wp_insert_post`.
+
+**Поиск существующей записи:** прямой SQL по `post_name` и `post_type = 'portfolio'`.
+
+**JS:** последовательный обход сайтов `copySite()` → `next()`, счётчик «Сайт X из N: название», итог «✓ Готово: N, ошибок: N», таймаут 60 сек на запрос.
+
+**Таблица — колонки:**  
+Действия (кнопка) | Название + статус | Slug | [Сайт1] [Сайт2] ...
+
+---
+
+## MPS_Copy_Galleries (class-mps-copy-galleries.php)
+
+Копирование галерей (CPT `ss_gallery`) с главного сайта на дочерние.
+
+**Расположение:** Network Admin → Синхронизация Multisite → Копирование галерей (slug: `mps-copy-galleries`)
+
+**AJAX actions:**
+- `mps_get_galleries` — загружает все галереи главного сайта (publish + draft, до 500) + статус на каждом дочернем сайте
+- `mps_copy_gallery` — копирует одну галерею на **один** указанный сайт (параметр `site_id`)
+
+**Nonce:** `mps_copy_galleries_nonce`  
+**JS объект:** `mpsCopyGalleriesData = { ajaxurl, nonce, sites: [{id, name}] }`  
+**JS файл:** `assets/js/copy-galleries.js`
+
+**Что копируется:**
+- `post_title`, `post_name` (slug), `post_status`
+- Мета-поле `_gallery_images` — JSON-массив имён файлов
+- Мета-поле `_gallery_columns` — JSON настроек колонок по брейкпоинтам
+
+**Файлы не копируются:** `wp-content/galleries/` — общая папка для всех поддоменов на одном сервере. Нужны только имена файлов.
+
+**Идентификатор галереи:** `post_name` (slug). Если галерея с таким slug уже есть → `wp_update_post`, нет → `wp_insert_post`.
+
+**Поиск существующей галереи:** прямой SQL по `post_name` и `post_type = 'ss_gallery'`.
+
+**JS:** последовательный обход сайтов `copySite()` → `next()`, счётчик «Сайт X из N: название», итог «✓ Готово: N, ошибок: N», таймаут 60 сек на запрос.
+
+**Таблица — колонки:**  
+Действия (кнопка) | Галерея + статус | Slug | [Сайт1] [Сайт2] ...
 
 ---
 
@@ -189,3 +208,42 @@ AND p.post_type = 'product' AND p.post_status != 'trash'
        → update_post_meta (кастомные мета — ПОСЛЕ save)
        restore_current_blog()
 ```
+
+---
+
+## MPS_Delete (class-mps-delete.php)
+
+Удаление и восстановление товаров на всех сайтах сети + создание 301-редиректов.
+
+**Расположение:** Network Admin → Синхронизация Multisite → Удаление товаров (slug: `ms-delete-products`)
+
+**AJAX actions:**
+- `ms_get_delete_products` — загружает все товары категории **включая корзину** (`post_status IN (publish, draft, private, pending, trash)`), возвращает HTML таблицы с 3-состоянием на каждый сайт
+- `ms_delete_product` — перемещает товар в корзину на **одном** сайте (`wp_trash_post`)
+- `ms_restore_product` — восстанавливает товар из корзины на **одном** сайте (`wp_untrash_post`)
+- `ms_create_redirect` — сохраняет 301-редирект в `mps_redirects` для списка сайтов
+
+**Nonce:** `ms_delete_nonce`
+**JS объект:** `msDeleteData = { ajaxurl, nonce, sites: [{id, name}] }`
+
+**3-состояния ячейки сайта:**
+- `active` — ✓ зелёный (товар опубликован / в черновике)
+- `trashed` — 🗑 жёлтый (товар в корзине)
+- `missing` — — серый (товар на главном сайте, но не скопирован)
+
+**Ключевые методы:**
+
+`ajax_get_products()` — главный сайт: загружает товары + собирает SKU, slug, статус, категории-предложения для редиректа. Для каждого дочернего сайта — один SQL-запрос на все SKU сразу.
+
+`get_original_path($product_id)` — возвращает относительный URL товара. Для товаров в корзине WordPress добавляет суффикс `__trashed` к slug — метод убирает его через `preg_replace('/__trashed\/$/', '/', $path)`.
+
+`build_products_table()` — рендерит HTML таблицы. Для уже трашнутых товаров сразу вставляет форму редиректа (`build_redirect_form_html()`).
+
+`build_redirect_form_html($slug_path, $cats_json, $trashed_sites_json)` — HTML блока редиректа: ссылка на удалённый URL (красная), поле FROM (монопространственное), поле TO (input), select категорий-предложений, кнопка «Создать редирект».
+
+`ajax_delete_product()` / `ajax_restore_product()` — **один сайт за вызов** (параметр `site_id`). Прямой SQL поиск по SKU + `wp_trash_post` / `wp_untrash_post`. Один запрос на сайт предотвращает PHP-таймаут (WooCommerce-хуки при trash/untrash обновляют lookup-таблицы и кеши на каждом сайте).
+
+`ajax_create_redirect()` — нормализует пути (`'/' . trim($path, '/') . '/'`), сохраняет `['from' => 'to']` в `mps_redirects` option для каждого `site_id` из списка.
+
+**Важно — data-sku на кнопках:**
+Кнопки «Удалить» и «Восстановить» должны иметь атрибут `data-sku`. Без него JS читает `undefined`, PHP возвращает «Неверные параметры» для каждого сайта. Атрибут задаётся в `$common_attrs` внутри `build_products_table()`.
